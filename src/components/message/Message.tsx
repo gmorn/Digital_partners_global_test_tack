@@ -1,13 +1,16 @@
 import { MessageArrow, MessageBlock, MessageContent } from './styles'
 
-type Props = {}
+type Props = {
+	date?: string
+	count?: number | null | string
+}
 
-export default function Message({}: Props) {
+export default function Message({ date, count }: Props) {
 	return (
 		<MessageBlock>
 			<MessageContent>
-				<h6>25 contributions</h6>
-				<p>Четверг, Ноябрь 28, 2022</p>
+				<h6>{count ? count : 'No'} contributions</h6>
+				<p>{date}</p>
 			</MessageContent>
 			<MessageArrow />
 		</MessageBlock>

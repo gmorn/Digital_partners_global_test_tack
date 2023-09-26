@@ -6,6 +6,7 @@ export const MessageBlock = styled.div`
 	width: 100%;
 	white-space: nowrap;
 	border-radius: 3px;
+	
 `
 
 export const MessageContent = styled.div`

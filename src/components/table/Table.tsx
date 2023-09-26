@@ -1,100 +1,88 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import CalendarService from '../../services/calendarService'
 import Day from '../dayComponent/Day'
-import { Container, Explanation, Flex, Months, TableContent, Weeks } from './styles'
+import { Container, Week } from './styles'
 
 type Props = {}
 
+type T_Days = {
+	date: string
+	count?: number
+}
+
 export default function Table({}: Props) {
-	function getMonths() {
-		const monthsArr = [
-			'Апр.',
-			'Май',
-			'Июнь',
-			'Июль',
-			'Авг.',
-			'Сент.',
-			'Окт.',
-			'Нояб.',
-			'Дек.',
-			'Янв.',
-			'Февр.',
-			'Март'
-		]
-		const currentDate = new Date()
-		const currentMonth = currentDate.getMonth()
-		const Months = []
+	const [calendar, setCalendar] = useState(null)
+	const [days, setDays] = useState<T_Days[]>([])
 
-		for (let i = monthsArr.length - 1; i > currentMonth; i--) {
-			const monthName = currentDate.toLocaleDateString('ru-RU', {
-				month: 'short'
-			})
-			Months.push(monthName)
-			currentDate.setMonth(currentDate.getMonth() - 1)
+	useEffect(() => {
+		const fetchCalendar = async () => {
+			const { data } = await CalendarService.getCalendar()
+			setCalendar(data)
 		}
-		for (let i = currentMonth; i >= 0; i--) {
-			const monthName = currentDate.toLocaleDateString('ru-RU', {
-				month: 'short'
-			})
-			Months.push(monthName)
-			currentDate.setMonth(currentDate.getMonth() - 1)
+		fetchCalendar()
+	}, [])
+
+	useEffect(() => {
+		if (calendar === null) return
+		const today = new Date()
+		const dayOfWeek = today.getDay()
+		const DaysCount = dayOfWeek + 7 * 50 - 1
+		const newDays = []
+
+		for (let index = DaysCount; index !== -1; index--) {
+			const currentDate = new Date()
+			const targetDate = new Date(currentDate)
+			targetDate.setDate(currentDate.getDate() - index)
+
+			const year = targetDate.getFullYear()
+			const month = String(targetDate.getMonth() + 1).padStart(2, '0') // Добавляем ведущий ноль, если месяц < 10
+			const day = String(targetDate.getDate()).padStart(2, '0') // Добавляем ведущий ноль, если день < 10
+
+			const count = calendar[`${year}-${month}-${day}`]
+
+			const targetDateString = targetDate.toDateString()
+			if (count !== undefined) {
+				newDays.push({ date: targetDateString, count })
+			} else {
+				newDays.push({ date: targetDateString })
+			}
 		}
-		const reverseMonths = Months.reverse()
-		return reverseMonths.map((str) => {
-			const firstLetter = str.charAt(0).toUpperCase()
-			const restOfStr = str.slice(1)
-			return firstLetter + restOfStr
-		})
-	}
 
-  const months = getMonths()
+		setDays(newDays)
 
-	const currentDate = new Date()
+		console.log(DaysCount)
+	}, [calendar])
 
-	const weeks = Array.from({ length: 51 }, (_, index) => index + 1).reverse()
+	useEffect(() => {
+		// console.log(days[days.length-1])
+		// for (let indexRow = 0; indexRow < 51; indexRow++) {
+		// 	for (let index = 1; index < 8; index++) {
+		// 		console.log(indexRow * 7 + index)
+		// 	}
+		// }
+	}, [days])
 
-	const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+	if (days.length === 0) return <>loading...</>
 
 	return (
 		<Container>
-			<Months>
-				{months.map((month) => (
-					<p>{month}</p>
-				))}
-			</Months>
-			<Weeks>
-				<p>Пн</p>
-				<p>Ср</p>
-				<p>Пт</p>
-			</Weeks>
-			<TableContent>
-				<table>
-					<tbody>
-						{daysOfWeek.map((day) => (
-							<tr key={day}>
-								{weeks.map((week) => (
-									<td key={week}>
-										{currentDate.getDay() < daysOfWeek.indexOf(day) &&
-										week === 1 ? null : (
-											<Day />
-										)}
-									</td>
-								))}
-							</tr>
-						))}
-					</tbody>
-				</table>
-			</TableContent>
-			<Explanation>
-        <p>Меньше</p>
-        <Flex>
-          <Day />
-          <Day />
-          <Day />
-          <Day />
-          <Day />
-        </Flex>
-        <p>Больше</p>
-      </Explanation>
+			{Array.from({ length: 51 }, (_, indexRow) => (
+				<Week key={indexRow}>
+					{Array.from({ length: 7 }, (_, index) =>
+						indexRow * 7 + index < days.length ? (
+							<Day
+								key={index}
+								date={days[indexRow * 7 + index].date}
+								count={
+									days[indexRow * 7 + index].count !== undefined
+										? days[indexRow * 7 + index].count
+										: null
+								}
+							/>
+						) : null
+					)}
+				</Week>
+			))}
 		</Container>
 	)
 }

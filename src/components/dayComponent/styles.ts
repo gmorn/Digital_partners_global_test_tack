@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components'
 
 type T_Active = {
 	active: boolean
+	count?: any
 }
 
 export const Container = styled.div`
@@ -16,6 +17,7 @@ export const MessageBlock = styled.div<T_Active>`
 	${(props) =>
 		props.active &&
 		css`
+			z-index: 1;
 			position: absolute;
 			display: block;
 			bottom: 22px;
@@ -27,7 +29,23 @@ export const MessageBlock = styled.div<T_Active>`
 export const DayBlock = styled.div<T_Active>`
 	width: 15px;
 	height: 15px;
-	background: #ededed;
+
+	${(props) => {
+		
+		if (props.count === undefined || props.count === null || props.count === 0) {
+			return css`background:#EDEDED;`
+		} else if (props.count === '1-9' || (props.count <= 9 && props.count >= 1)) {
+			return css`background:#ACD5F2;`
+		} else if (props.count === '10-19' || (props.count <= 19 && props.count >= 10)) {
+			return css`background:#7FA8C9;`
+		} else if (props.count === '20-29' || (props.count >= 19 && props.count <= 29)) {
+			return css`background:#527BA0;`
+		} else if (props.count >= 30 || props.count === '30+') {
+			return css`background:#254E77;`
+		} else {
+			return css`background:#EDEDED;`
+		}
+	}}
 
 	&:hover {
 		cursor: pointer;
