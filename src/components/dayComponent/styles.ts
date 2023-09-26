@@ -7,7 +7,6 @@ type T_Active = {
 export const Container = styled.div`
 	position: relative;
 	max-width: 15px;
-	margin: 150px;
 	max-height: 15px;
 `
 

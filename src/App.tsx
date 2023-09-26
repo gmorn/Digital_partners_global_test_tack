@@ -1,9 +1,9 @@
-import Day from './components/dayComponent/Day'
+import Table from './components/table/Table'
 
 function App() {
 	return (
 		<>
-			<Day />
+			<Table />
 		</>
 	)
 }
